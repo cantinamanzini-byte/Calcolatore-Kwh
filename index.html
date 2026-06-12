@@ -1,1 +1,978 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="KWH">
+<title>Calcolatore KWH</title>
+<style>
+:root{--v:#1a5c2e;--m:#2d8a4e;--l:#e8f5ee;--a:#d35400}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:#f0f4f1;min-height:100vh;padding-bottom:40px}
+input,select,button,textarea{font-family:inherit}
+.wrap{max-width:480px;margin:0 auto}
+.hdr{background:linear-gradient(155deg,var(--v),var(--m));padding:28px 20px 20px;color:#fff}
+.hdr-top{font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;opacity:.6;margin-bottom:4px}
+.hdr-row{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+.hdr-ttl{font-size:24px;font-weight:700}
+.hdr-sub{font-size:12px;opacity:.6;margin-top:3px}
+.hdr-btn{background:rgba(255,255,255,.18);border:none;color:#fff;border-radius:9px;padding:8px 14px;font-size:12px;font-weight:600;cursor:pointer}
+.tab{display:none}.tab.on{display:block}
+.sez{background:#fff;margin:12px 14px 0;border-radius:14px;padding:14px;box-shadow:0 2px 8px rgba(0,0,0,.06)}
+.sez-tit{font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#bbb;margin-bottom:12px}
+.campo{margin-bottom:12px}
+.lbl{font-size:12px;font-weight:600;color:#555;margin-bottom:5px;display:block}
+.inp{width:100%;height:46px;border:1.5px solid #e8e8e8;border-radius:11px;padding:0 14px;font-size:15px;color:#1a1a1a;background:#fafafa;outline:none;-webkit-appearance:none;display:block}
+textarea.inp{height:auto;padding:11px 14px;min-height:64px;resize:vertical;line-height:1.35}
+.inp:focus{border-color:var(--m);background:#fff}
+.sel{width:100%;height:46px;border:1.5px solid #e8e8e8;border-radius:11px;padding:0 36px 0 14px;font-size:15px;color:#1a1a1a;background:#fafafa;outline:none;-webkit-appearance:none;display:block;cursor:pointer;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23999' stroke-width='1.5' fill='none'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center}
+.sel:focus{border-color:var(--m)}
+.calcbtn{display:block;width:calc(100% - 28px);margin:13px 14px 0;height:52px;border:none;border-radius:14px;background:linear-gradient(135deg,var(--m),var(--v));color:#fff;font-size:17px;font-weight:700;cursor:pointer;box-shadow:0 4px 14px rgba(26,92,46,.3)}
+.rcard{margin:12px 14px 0;border-radius:14px;padding:16px;display:none}
+.brow{display:none;gap:8px;margin:12px 14px 0}
+.savbtn{flex:1;height:50px;border:none;border-radius:14px;color:#fff;font-size:15px;font-weight:700;cursor:pointer;background:linear-gradient(135deg,#27ae60,var(--v));box-shadow:0 4px 14px rgba(26,92,46,.25)}
+.shrbtn{width:50px;height:50px;border:none;border-radius:14px;background:#fff;font-size:20px;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,.08);flex-shrink:0;color:var(--v)}
+.fbox{background:#fafafa;border:1.5px solid #e8e8e8;border-radius:12px;padding:11px;margin-bottom:8px}
+.fbox-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:9px}
+.fnome{font-size:13px;font-weight:700;color:#1a1a1a;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ftipo{font-size:10px;font-weight:600;margin-top:2px}
+.fdel{width:30px;height:30px;border:none;border-radius:8px;background:#fff0f0;color:#e74c3c;font-size:17px;cursor:pointer;flex-shrink:0;margin-left:8px}
+.fgrid{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.fcol-lbl{font-size:10px;font-weight:700;margin-bottom:4px}
+.fw{position:relative}
+.finp{height:38px;border:1.5px solid #ddd;border-radius:9px;padding:0 28px 0 8px;font-size:14px;background:#fff;width:100%;text-align:right;-webkit-appearance:none;outline:none;display:block}
+.finp:focus{border-color:var(--m)}
+.ftot{border-color:var(--m)!important;background:#f0faf4!important;font-weight:700;color:var(--v)}
+.funit{position:absolute;right:8px;top:50%;transform:translateY(-50%);font-size:10px;pointer-events:none}
+.addbtn{display:flex;align-items:center;justify-content:center;gap:6px;height:46px;border:1.5px dashed #cce4d4;border-radius:12px;background:transparent;color:var(--m);font-size:14px;font-weight:600;width:100%;cursor:pointer;margin-top:4px}
+.picker{background:#f8fdf9;border:1.5px solid var(--m);border-radius:12px;overflow:hidden;margin-top:8px;display:none}
+.picker.on{display:block}
+.pk-hdr{padding:10px 13px;border-bottom:1px solid #dff0e8;display:flex;align-items:center;justify-content:space-between}
+.pk-done{background:var(--v);border:none;color:#fff;border-radius:8px;padding:7px 14px;font-size:13px;font-weight:600;cursor:pointer}
+.pk-srch{padding:8px 13px;border-bottom:1px solid #e8f5ee}
+.pk-srch input{width:100%;height:40px;border:1.5px solid #ddd;border-radius:9px;padding:0 10px;font-size:14px;background:#fff;outline:none;-webkit-appearance:none;display:block}
+.glbl{font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:#aaa;padding:8px 13px 4px}
+.pkrow{display:flex;align-items:center;gap:10px;padding:11px 13px;border-bottom:1px solid #f0f8f0;cursor:pointer;user-select:none}
+.pkrow.on{background:#f0faf3}
+.pkdot{width:9px;height:9px;border-radius:50%;flex-shrink:0}
+.pkck{width:26px;height:26px;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700;flex-shrink:0;background:transparent;border:2px solid #ddd;color:#fff}
+.pkck.on{background:var(--v);border:none}
+.reg{margin:12px 14px 24px;display:none}
+.reg-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:9px}
+.reg-lbl{font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#bbb}
+.clrbtn{font-size:11px;font-weight:600;color:#e74c3c;background:none;border:none;cursor:pointer}
+.voce{background:#fff;border-radius:12px;padding:12px 13px;margin-bottom:8px;box-shadow:0 1px 5px rgba(0,0,0,.06)}
+.voce.editing{border:2px solid var(--m)}
+.vtop{display:flex;align-items:center;gap:9px}
+.vdot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.vtitle{font-size:13px;font-weight:600;color:#1a1a1a;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1}
+.vsub{font-size:11px;color:#aaa;margin-top:2px}
+.vval{font-size:14px;font-weight:600;flex-shrink:0}
+.vfito{margin-top:8px;padding-top:8px;border-top:1px solid #f0f0f0}
+.vfrow{display:flex;align-items:center;justify-content:space-between;padding:3px 0;border-bottom:1px solid #f5f5f5}
+.vfrow:last-child{border:none}
+.vfnome{font-size:12px;font-weight:600;color:#1a1a1a;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.vfdose{font-size:10px;color:#aaa}
+.vftot{font-size:13px;font-weight:700;color:var(--m);flex-shrink:0;margin-left:8px}
+.vacts{display:flex;gap:6px;margin-top:9px}
+.vact{flex:1;height:32px;border:none;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer}
+.note-box{margin:8px 0 0;padding:8px 10px;border-radius:10px;background:#fff8e8;color:#6b4f00;font-size:12px;line-height:1.35}
+.mod-tit{font-size:13px;font-weight:700;color:var(--m);margin-bottom:13px}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:12px}
+.g2 .inp,.g2 .sel{height:42px;font-size:14px}
+.ebtns{display:flex;gap:8px}
+.eann{flex:1;height:42px;border:1.5px solid #eee;border-radius:10px;background:#fafafa;color:#555;font-size:13px;font-weight:600;cursor:pointer}
+.esalv{flex:2;height:42px;border:none;border-radius:10px;background:var(--v);color:#fff;font-size:13px;font-weight:700;cursor:pointer}
+.newbtn{display:flex;align-items:center;justify-content:center;gap:6px;margin:12px 14px 0;height:46px;border:1.5px dashed #cce4d4;border-radius:12px;background:transparent;color:var(--m);font-size:14px;font-weight:600;width:calc(100% - 28px);cursor:pointer}
+.editbox{background:#fff;margin:8px 14px;border-radius:14px;padding:14px;box-shadow:0 2px 8px rgba(0,0,0,.08);border:1.5px solid var(--m);display:none}
+.editbox.on{display:block}
+.cat-item{display:flex;align-items:center;gap:10px;padding:11px 16px;border-bottom:1px solid #f5f5f5;background:#fff}
+.cdot{width:9px;height:9px;border-radius:50%;flex-shrink:0}
+.cnome{font-size:14px;font-weight:600;color:#1a1a1a}
+.csub{font-size:11px;color:#999;margin-top:1px}
+.cacts{display:flex;gap:6px;flex-shrink:0}
+.cebtn,.cdbtn{width:32px;height:32px;border:none;border-radius:8px;font-size:15px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.cebtn{background:var(--l);color:var(--v)}.cdbtn{background:#fff0f0;color:#e74c3c}
+.syncbar{margin-top:14px;background:rgba(255,255,255,.13);border-radius:11px;padding:9px 10px;display:flex;align-items:center;justify-content:space-between;gap:8px}
+.synctxt{font-size:11px;font-weight:700;color:rgba(255,255,255,.92);display:flex;align-items:center;gap:6px;min-width:0}
+.syncdot{width:9px;height:9px;border-radius:50%;background:#aaa;display:inline-block;flex-shrink:0}
+.syncdot.ok{background:#7CFC9A}.syncdot.warn{background:#ffd166}.syncdot.err{background:#ff7b7b}
+.syncbtn{border:none;border-radius:8px;padding:6px 9px;background:rgba(255,255,255,.2);color:#fff;font-size:11px;font-weight:800;cursor:pointer;flex-shrink:0}
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--v);color:#fff;padding:10px 20px;border-radius:10px;font-size:14px;font-weight:600;box-shadow:0 4px 16px rgba(0,0,0,.2);z-index:999;opacity:0;transition:opacity .3s;pointer-events:none;max-width:92%;text-align:center}
+.toast.show{opacity:1}
+</style>
+</head>
+<body>
+<!-- ===== BLOCCO PASSWORD ===== -->
+<div id="cmLock" style="position:fixed;inset:0;z-index:99999;display:none;
+     background:#f0f4f1;color:#1f2e25;font-family:system-ui,Arial,sans-serif;
+     align-items:center;justify-content:center;padding:20px;box-sizing:border-box">
+  <div style="background:#fff;border:1px solid #cfe3d6;border-radius:14px;max-width:340px;width:100%;
+       padding:26px 22px;text-align:center;box-shadow:0 10px 30px rgba(0,0,0,.12)">
+    <div style="font-size:34px;line-height:1;margin-bottom:8px">💧</div>
+    <h2 style="margin:0 0 4px;font-size:19px;color:#1a5c2e">Calcolatore KWH</h2>
+    <p style="margin:0 0 18px;font-size:13px;color:#5a7a66">Inserisci la password per continuare</p>
+    <input id="cmPwd" type="password" inputmode="text" autocomplete="off" placeholder="Password"
+       style="width:100%;box-sizing:border-box;padding:12px;font-size:16px;border:1px solid #aacdb6;
+       border-radius:9px;text-align:center;margin-bottom:10px">
+    <div id="cmErr" style="color:#c0392b;font-size:13px;height:16px;margin-bottom:6px"></div>
+    <button id="cmBtn" type="button" style="width:100%;padding:12px;font-size:16px;font-weight:600;
+       color:#fff;background:#1a5c2e;border:0;border-radius:9px;cursor:pointer">Entra</button>
+    <label style="display:block;margin-top:12px;font-size:12px;color:#5a7a66">
+      <input id="cmRemember" type="checkbox"> Resta sbloccato su questo dispositivo
+    </label>
+  </div>
+</div>
+<!-- ===== FINESTRA CAMBIA PASSWORD ===== -->
+<div id="cmChange" style="position:fixed;inset:0;z-index:99998;display:none;
+     background:rgba(0,0,0,.35);align-items:center;justify-content:center;padding:20px;
+     box-sizing:border-box;font-family:system-ui,Arial,sans-serif">
+  <div style="background:#fff;border:1px solid #cfe3d6;border-radius:14px;max-width:340px;width:100%;
+       padding:24px 22px;box-shadow:0 12px 32px rgba(0,0,0,.25)">
+    <h2 style="margin:0 0 6px;font-size:18px;color:#1a5c2e;text-align:center">Cambia password</h2>
+    <p style="margin:0 0 14px;font-size:13px;color:#5a7a66;text-align:center">Scrivi la nuova password e premi Salva.</p>
+    <input id="cmcNew" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Nuova password"
+       style="width:100%;box-sizing:border-box;padding:12px;font-size:16px;border:1px solid #aacdb6;border-radius:9px;text-align:center;margin-bottom:6px">
+    <div id="cmcMsg" style="font-size:13px;min-height:16px;margin-bottom:8px"></div>
+    <div style="display:flex;gap:8px">
+      <button type="button" onclick="closeChangePassword()" style="flex:1;padding:12px;font-size:15px;
+         color:#1a5c2e;background:#e8f5ee;border:1px solid #cfe3d6;border-radius:9px;cursor:pointer">Annulla</button>
+      <button type="button" onclick="saveNewPassword()" style="flex:1;padding:12px;font-size:15px;font-weight:600;
+         color:#fff;background:#1a5c2e;border:0;border-radius:9px;cursor:pointer">Salva</button>
+    </div>
+  </div>
+</div>
+<script>
+(function(){
+  var DEFAULT_PASSWORD = "cantina2025";   /* <<< password iniziale / di ripristino <<< */
+  window.CM_DEFAULT_PASSWORD = DEFAULT_PASSWORD;
+  function cmCurrentPw(){ return localStorage.getItem('cm_password_kwh') || DEFAULT_PASSWORD; }
 
+  try{ localStorage.removeItem('cm_unlocked_kwh'); }catch(e){}   /* pulisce il vecchio sblocco permanente */
+  if (localStorage.getItem('cm_remember_kwh') === '1') return;   /* ricordami volontario */
+  if (sessionStorage.getItem('cm_unlocked_kwh') === '1') return; /* sblocco di sessione */
+
+  var lock=document.getElementById('cmLock'),pwd=document.getElementById('cmPwd'),
+      err=document.getElementById('cmErr'),btn=document.getElementById('cmBtn'),
+      rem=document.getElementById('cmRemember');
+  lock.style.display='flex';
+  document.body.style.overflow='hidden';
+  setTimeout(function(){pwd.focus();},100);
+  function tryUnlock(){
+    if(pwd.value===cmCurrentPw()){
+      sessionStorage.setItem('cm_unlocked_kwh','1');
+      if(rem.checked) localStorage.setItem('cm_remember_kwh','1');
+      else try{localStorage.removeItem('cm_remember_kwh');}catch(e){}
+      lock.style.display='none'; document.body.style.overflow='';
+    } else { err.textContent='Password errata'; pwd.value=''; pwd.focus(); }
+  }
+  btn.addEventListener('click',tryUnlock);
+  pwd.addEventListener('keydown',function(e){if(e.key==='Enter')tryUnlock();});
+})();
+function changePassword(){
+  var m=document.getElementById('cmChange'); if(!m)return;
+  var cur=localStorage.getItem('cm_password_kwh') || window.CM_DEFAULT_PASSWORD || 'cantina2025';
+  var f=document.getElementById('cmcNew'); f.value=cur;
+  var msg=document.getElementById('cmcMsg'); msg.textContent=''; msg.style.color='#c0392b';
+  m.style.display='flex';
+  setTimeout(function(){f.focus();f.select();},80);
+}
+function closeChangePassword(){var m=document.getElementById('cmChange'); if(m)m.style.display='none';}
+function saveNewPassword(){
+  var msg=document.getElementById('cmcMsg');
+  var n1=(document.getElementById('cmcNew').value||'').trim();
+  if(!n1){ msg.textContent='Scrivi una password'; return; }
+  localStorage.setItem('cm_password_kwh', n1);
+  msg.style.color='#1a5c2e'; msg.textContent='Password salvata su questo dispositivo.';
+  setTimeout(closeChangePassword, 1100);
+}
+function bloccaApp(){
+  try{ sessionStorage.removeItem('cm_unlocked_kwh'); localStorage.removeItem('cm_remember_kwh'); }catch(e){}
+  location.reload();
+}
+</script>
+<!-- ===== FINE BLOCCO PASSWORD ===== -->
+<div class="wrap">
+<div class="hdr">
+ <div class="hdr-top">Irroratrice</div>
+ <div class="hdr-row">
+  <div><div class="hdr-ttl">Calcolatore KWH</div><div class="hdr-sub">Regolazione Volume Liquido · v1.2</div></div>
+  <button type="button" class="hdr-btn" onclick="cambiaTab()"> Prodotti</button>
+  <button type="button" class="hdr-btn" onclick="changePassword()">🔑</button>
+  <button type="button" class="hdr-btn" onclick="bloccaApp()" title="Blocca">🔒</button>
+ </div>
+ <div class="syncbar">
+  <div class="synctxt"><span id="sync-dot" class="syncdot"></span><span id="sync-status">Sincronizzazione Google: avvio...</span></div>
+  <button type="button" class="syncbtn" onclick="aggiornaDaCloud(true)">AGGIORNA</button>
+  <button type="button" class="syncbtn" onclick="forzaSincronizzazione()">SYNC</button>
+ </div>
+</div>
+
+<div id="tab-calc" class="tab on">
+ <div class="sez" id="home-stat-box" style="display:flex;align-items:center;gap:12px;background:linear-gradient(135deg,#1a5c2e,#2d8a4e);color:#fff">
+  <div style="font-size:26px;line-height:1">🗓️</div>
+  <div style="flex:1;min-width:0">
+   <div id="home-stat-num" style="font-size:18px;font-weight:700;line-height:1.1">0 trattamenti</div>
+   <div id="home-stat-data" style="font-size:12px;opacity:.85;margin-top:2px">Nessun trattamento salvato</div>
+  </div>
+ </div>
+ <button type="button" class="newbtn" onclick="esportaBackup()">💾 Backup dati (trattamenti + prodotti)</button>
+ <div class="sez">
+  <div class="sez-tit">Parametri</div>
+  <div class="campo"><label class="lbl"> Data trattamento</label><input type="date" id="f-data" class="inp"></div>
+  <div class="campo"><label class="lbl"> Apertura / Chiusura Aria Torre</label>
+   <select id="f-aria" class="sel"><option value="apertura"> Apertura Aria Torre</option><option value="chiusura"> Chiusura Aria Torre</option></select>
+  </div>
+  <div class="campo"><label class="lbl"> Quantità (LT/HA)</label><input type="number" id="f-ltHa" class="inp" inputmode="decimal" placeholder="es. 400" oninput="aggiornaBottiAuto('f')"></div>
+  <div class="campo"><label class="lbl"> Larghezza Interfila (metri)</label><input type="number" id="f-interf" class="inp" inputmode="decimal" placeholder="es. 3.41" value="3.41"></div>
+  <div class="campo"><label class="lbl"> Velocità (km/h)</label><input type="number" id="f-vel" class="inp" inputmode="decimal" placeholder="es. 6.5"></div>
+  <div class="campo"><label class="lbl"> Dosatori attivi</label>
+   <select id="f-dos" class="sel"><option value="4">4 Dosatori</option><option value="2">2 Dosatori</option></select>
+  </div>
+  <div class="campo"><label class="lbl"> Rubinetti aperti</label>
+   <select id="f-rub" class="sel">
+    <option value="1">1 Rubinetto</option><option value="2">2 Rubinetti</option><option value="3" selected>3 Rubinetti</option>
+    <option value="4">4 Rubinetti</option><option value="5">5 Rubinetti</option><option value="6">6 Rubinetti</option>
+   </select>
+  </div>
+  <div class="campo"><label class="lbl"> Ettari totali (facoltativo)</label><input type="number" id="f-ettari" class="inp" inputmode="decimal" placeholder="es. 8.55" oninput="aggiornaBottiAuto('f')"></div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:9px">
+   <div class="campo"><label class="lbl"> Capacità botte (HL)</label><input type="number" id="f-botte-hl" class="inp" inputmode="decimal" placeholder="es. 10" oninput="aggiornaBottiAuto('f')"></div>
+   <div class="campo"><label class="lbl"> Numero botti automatico</label><input type="text" id="f-num-botti" class="inp" placeholder="automatico" readonly style="background:#f0faf4;color:var(--v);font-weight:700"></div>
+  </div>
+  <div class="campo" style="margin-top:0">
+   <label class="lbl">Nota</label>
+   <textarea id="f-nota" class="inp" rows="2" placeholder="es. vento, ugelli, pressione, miscela, appezzamento..."></textarea>
+  </div>
+  <div style="font-size:11px;color:#777;line-height:1.35;margin-top:-4px">Inserisci LT/HA, ettari e capacità botte: il programma calcola automaticamente acqua totale, numero botti e ultima botte.<div id="f-botti-info" style="margin-top:6px;color:var(--v);font-weight:700"></div></div>
+ </div>
+
+ <div class="sez">
+  <div class="sez-tit"> Fitofarmaci</div>
+  <div id="fsel"></div>
+  <button type="button" class="addbtn" id="addbtn" onclick="apriPicker()"><span style="font-size:20px">＋</span> Aggiungi fitofarmaco</button>
+  <div class="picker" id="picker">
+   <div class="pk-hdr">
+    <span id="pk-cnt" style="font-size:13px;font-weight:700;color:var(--v)">0 selezionati</span>
+    <button type="button" class="pk-done" onclick="chiudiPicker()">✓ Fatto</button>
+   </div>
+   <div class="pk-srch"><input type="text" id="pk-cerca" placeholder=" Cerca prodotto…" oninput="renderPicker()"></div>
+   <div id="pk-lista"></div>
+  </div>
+ </div>
+
+ <button type="button" class="calcbtn" onclick="calcola()"> Calcola</button>
+ <div class="rcard" id="rcard"></div>
+ <div class="brow" id="brow">
+  <button type="button" class="savbtn" onclick="salvaReg()"> Salva nel Registro</button>
+  <button type="button" class="shrbtn" title="Condividi" onclick="condividiUltimo()">⬆️</button>
+ </div>
+ <div class="reg" id="reg">
+  <div class="reg-hdr">
+   <span class="reg-lbl" id="reg-lbl">Registro</span>
+   <div style="display:flex;gap:12px">
+    <button type="button" class="clrbtn" style="color:var(--m)" onclick="stampaTutto()">🖨️ Stampa tutto</button>
+    <button type="button" class="clrbtn" onclick="cancellaReg()">Cancella tutto</button>
+   </div>
+  </div>
+  <div id="voci"></div>
+ </div>
+</div>
+
+<div id="tab-prod" class="tab">
+ <button type="button" class="newbtn" onclick="nuovoProd()"><span style="font-size:18px">＋</span> Nuovo prodotto</button>
+ <div class="editbox" id="editbox">
+  <div id="etit" style="font-size:13px;font-weight:700;color:var(--v);margin-bottom:12px"></div>
+  <div class="campo"><label class="lbl">Nome prodotto</label><input type="text" id="ep-nome" class="inp" placeholder="es. Mancozeb WG"></div>
+  <div class="campo"><label class="lbl">Categoria</label><select id="ep-tipo" class="sel"></select></div>
+  <div style="display:flex;gap:9px;margin-bottom:13px">
+   <div style="flex:1"><label class="lbl">Dose default</label><input type="number" id="ep-dose" class="inp" inputmode="decimal" placeholder="es. 1.5"></div>
+   <div style="flex:1"><label class="lbl">Unità</label><select id="ep-unita" class="sel"><option>kg</option><option>l</option><option>g</option><option>ml</option></select></div>
+  </div>
+  <div style="display:flex;gap:8px">
+   <button type="button" class="eann" onclick="chiudiEdit()">Annulla</button>
+   <button type="button" class="esalv" style="flex:2" onclick="salvaProd()">✓ Salva prodotto</button>
+  </div>
+ </div>
+ <div id="cat-lista"></div>
+ <div class="sez" style="margin-bottom:24px">
+  <div class="sez-tit">Sicurezza dati / Backup</div>
+  <div style="display:flex;gap:8px;margin-bottom:10px">
+   <button type="button" class="esalv" style="flex:1;background:var(--m)" onclick="esportaBackup()">⬇️ Esporta</button>
+   <button type="button" class="esalv" style="flex:1;background:#2a5db0" onclick="document.getElementById('bk-file').click()">⬆️ Importa</button>
+  </div>
+  <input type="file" id="bk-file" accept="application/json,.json" style="display:none" onchange="importaBackupFile(this)">
+  <div style="font-size:11px;color:#777;line-height:1.4;margin-bottom:10px">Backup automatici locali (ultimi 8), creati a ogni salvataggio. "Esporta" salva un file .json da tenere al sicuro; "Importa" lo riunisce ai dati senza perdere nulla.</div>
+  <div id="bk-lista"></div>
+ </div>
+</div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+const TC={Fungicida:"#1a5c2e",Insetticida:"#1565c0",Acaricida:"#6a1b9a",Repellente:"#e65100",Corroborante:"#2e7d32",Microelemento:"#00695c",Altro:"#607d8b"};
+const TIPI=["Fungicida","Insetticida","Acaricida","Repellente","Corroborante","Microelemento","Altro"];
+const CLOUD_URL = 'https://script.google.com/macros/s/AKfycbwM3ZHFLERAuIZp7KFu6qp5r1hmJwFqGI01XaxjmBuorzijjnvhrhePtxPwWHWQ2owa/exec';
+const CAT0=[
+ {id:"1",nome:"Poltiglia Bordolese",tipo:"Fungicida",unita:"kg",dose:2.0},
+ {id:"2",nome:"Zolfo Bagnabile",tipo:"Fungicida",unita:"kg",dose:3.0},
+ {id:"3",nome:"Mancozeb",tipo:"Fungicida",unita:"kg",dose:1.5},
+ {id:"4",nome:"Switch",tipo:"Fungicida",unita:"kg",dose:0.8},
+ {id:"5",nome:"Tebuconazolo",tipo:"Fungicida",unita:"l",dose:0.4},
+ {id:"6",nome:"Mandipropamide",tipo:"Fungicida",unita:"l",dose:0.5},
+ {id:"7",nome:"Ametoctradina+Dimetomorf",tipo:"Fungicida",unita:"l",dose:1.0},
+ {id:"8",nome:"Fosetil Alluminio",tipo:"Fungicida",unita:"kg",dose:2.5},
+ {id:"9",nome:"Bellis",tipo:"Fungicida",unita:"kg",dose:0.8},
+ {id:"10",nome:"Azoxystrobin",tipo:"Fungicida",unita:"l",dose:0.5},
+ {id:"11",nome:"Cyazofamid",tipo:"Fungicida",unita:"l",dose:0.4},
+ {id:"12",nome:"Pyrimethanil",tipo:"Fungicida",unita:"l",dose:1.0},
+ {id:"13",nome:"Kaolin",tipo:"Repellente",unita:"kg",dose:3.0},
+ {id:"14",nome:"Spinosad",tipo:"Insetticida",unita:"l",dose:0.25},
+ {id:"15",nome:"Lambda-cialotrina",tipo:"Insetticida",unita:"l",dose:0.15},
+ {id:"16",nome:"Acetamiprid",tipo:"Insetticida",unita:"l",dose:0.2},
+ {id:"17",nome:"Abamectina",tipo:"Acaricida",unita:"l",dose:0.4},
+ {id:"18",nome:"Bifenazate",tipo:"Acaricida",unita:"l",dose:0.4},
+ {id:"19",nome:"Fosfonato Potassio",tipo:"Corroborante",unita:"l",dose:2.0},
+ {id:"20",nome:"Ferro EDTA",tipo:"Microelemento",unita:"kg",dose:0.5}
+];
+
+function lsGet(k,fb){try{const v=localStorage.getItem(k);return v?JSON.parse(v):fb;}catch(e){return fb;}}
+function lsSave(k,v){try{localStorage.setItem(k,JSON.stringify(v));return true;}catch(e){try{toast("⚠️ Memoria piena: dati NON salvati");}catch(_){}return false;}}
+function mergeBy(localArr,cloudArr,idKey){
+ const map=new Map();
+ (cloudArr||[]).forEach(x=>{if(x&&x[idKey]!=null)map.set(String(x[idKey]),x);});
+ (localArr||[]).forEach(x=>{if(x&&x[idKey]!=null)map.set(String(x[idKey]),x);});
+ return [...map.values()];
+}
+function fmt(v,d=2){if(v==null||isNaN(v))return"—";return Number(v).toLocaleString("it-IT",{minimumFractionDigits:d,maximumFractionDigits:d});}
+function dIt(iso){if(!iso)return"";const[y,m,g]=iso.split("-");return g+"/"+m+"/"+y;}
+function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2);}
+function gv(id){const e=document.getElementById(id);return e?e.value:"";}
+function numVal(id){const v=(gv(id)||"").replace(",",".");return parseFloat(v)||0;}
+function esc(s){return String(s||"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[m]));}
+
+function areaDaBotti(prefix,ltHa,ettariManual){
+ const hl=numVal(prefix+"-botte-hl");
+ const ettari=ettariManual||0;
+ const acqua=ltHa&&ettari?ltHa*ettari:null;
+ const capLitri=hl?hl*100:null;
+ let nb=null,bottiIntere=null,ultimaBotte=null;
+ if(acqua&&capLitri){
+  nb=acqua/capLitri;
+  bottiIntere=Math.floor(nb);
+  ultimaBotte=acqua-(bottiIntere*capLitri);
+  if(ultimaBotte<0.0001)ultimaBotte=0;
+ }
+ return {capacitaBotteHl:hl||null,numeroBotti:nb||null,bottiIntere:bottiIntere,ultimaBotte:ultimaBotte,totAcqua:acqua||null,ettari:ettari||null};
+}
+
+function aggiornaBottiAuto(prefix){
+ const ltHa=numVal(prefix+"-ltHa");
+ const ettari=numVal(prefix+"-ettari");
+ const info=areaDaBotti(prefix,ltHa,ettari);
+ const campo=document.getElementById(prefix+"-num-botti");
+ if(campo)campo.value=info.numeroBotti?fmt(info.numeroBotti,2):"";
+ const box=document.getElementById(prefix+"-botti-info");
+ if(box){
+  if(info.totAcqua&&info.capacitaBotteHl)box.textContent=`Acqua totale: ${fmt(info.totAcqua,0)} L · Botti: ${fmt(info.numeroBotti,2)} · Botti complete: ${info.bottiIntere||0} · Ultima botte: ${fmt(info.ultimaBotte||0,0)} L`;
+  else if(info.totAcqua)box.textContent=`Acqua totale: ${fmt(info.totAcqua,0)} L`;
+  else box.textContent="";
+ }
+ if(prefix==="f")ricalcTuttiTotali();
+}
+function mainEttariPerDosi(){return areaDaBotti("f",numVal("f-ltHa"),numVal("f-ettari")).ettari||0;}
+
+let sel=[];
+let catalogo=lsGet("kwh_cat",CAT0);
+let registro=lsGet("kwh_reg",[]);
+let lastCalc=null;
+let editProdId=null;
+let editRegKey=null;
+let editFito=[];
+let syncTimer=null;
+let cloudPronto=false;
+
+function toast(msg,dur=2200){const t=document.getElementById("toast");t.textContent=msg;t.classList.add("show");setTimeout(()=>t.classList.remove("show"),dur);}
+
+function datiKwh(){return {catalogo:Array.isArray(catalogo)?catalogo:[],registro:Array.isArray(registro)?registro:[]};}
+function normalizzaCloud(d){return {catalogo:Array.isArray(d&&d.catalogo)?d.catalogo:[],registro:Array.isArray(d&&d.registro)?d.registro:[]};}
+function datiVuoti(d){d=normalizzaCloud(d);return !d.catalogo.length&&!d.registro.length;}
+function salvaLocale(){lsSave("kwh_cat",catalogo);lsSave("kwh_reg",registro);}
+function setSyncStatus(testo,tipo=""){
+ const s=document.getElementById("sync-status"),d=document.getElementById("sync-dot");
+ if(!s||!d)return;
+ s.textContent=testo;
+ d.className="syncdot"+(tipo?" "+tipo:"");
+}
+function caricaDaCloud(){
+ return new Promise((resolve,reject)=>{
+  const cb="kwhCloudCallback_"+Date.now();
+  const script=document.createElement("script");
+  const timeout=setTimeout(()=>{cleanup();reject(new Error("Tempo scaduto"));},15000);
+  function cleanup(){clearTimeout(timeout);try{delete window[cb];}catch(e){window[cb]=undefined;}if(script.parentNode)script.parentNode.removeChild(script);}
+  window[cb]=(res)=>{cleanup();if(res&&res.ok)resolve(normalizzaCloud(res.data));else reject(new Error("Risposta cloud non valida"));};
+  script.onerror=()=>{cleanup();reject(new Error("Errore collegamento cloud"));};
+  script.src=CLOUD_URL+"?callback="+encodeURIComponent(cb)+"&t="+Date.now();
+  document.body.appendChild(script);
+ });
+}
+async function salvaSuCloud(){
+ try{
+  setSyncStatus("Sincronizzazione in corso...","warn");
+  await fetch(CLOUD_URL,{method:"POST",mode:"no-cors",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify({data:datiKwh()})});
+  setSyncStatus("Sincronizzato con Google Sheets","ok");
+ }catch(e){
+  setSyncStatus("Non sincronizzato: dati salvati su questo dispositivo","err");
+ }
+}
+function pianificaSyncCloud(){if(syncTimer)clearTimeout(syncTimer);syncTimer=setTimeout(()=>salvaSuCloud(),700);}
+function salvaTutto(){salvaLocale();pianificaSyncCloud();}
+async function avviaCloud(){
+ setSyncStatus("Collegamento a Google Sheets...","warn");
+ const locali=datiKwh();
+ try{
+  const cloud=await caricaDaCloud();
+  cloudPronto=true;
+  if(datiVuoti(cloud)){
+   if(!datiVuoti(locali)){await salvaSuCloud();setSyncStatus("Dati locali caricati su Google Sheets","ok");}
+   else setSyncStatus("Google Sheets collegato, archivio vuoto","ok");
+   return;
+  }
+  /* UNIONE sicura: non si perde mai una voce, ne' locale ne' cloud */
+  const catU=mergeBy(catalogo,cloud.catalogo,"id");
+  const regU=mergeBy(registro,cloud.registro,"key").sort((a,b)=>(b.key||0)-(a.key||0));
+  const cloudIncompleto=(catU.length!==(cloud.catalogo||[]).length)||(regU.length!==(cloud.registro||[]).length);
+  catalogo=catU.length?catU:CAT0;
+  registro=regU;
+  salvaLocale();
+  renderCatalogo();renderFsel();renderRegistro();renderPicker();
+  if(cloudIncompleto){await salvaSuCloud();setSyncStatus("Dati uniti (dispositivo + Google Sheets)","ok");}
+  else setSyncStatus("Sincronizzato con Google Sheets","ok");
+ }catch(e){
+  cloudPronto=false;
+  setSyncStatus("Cloud non raggiungibile: uso dati del dispositivo","err");
+ }
+}
+async function forzaSincronizzazione(){salvaLocale();await salvaSuCloud();toast("✓ Sincronizzazione inviata");}
+
+let ultimoPull=0, pullInCorso=false;
+async function aggiornaDaCloud(manuale){
+ if(pullInCorso)return;
+ if(!manuale && Date.now()-ultimoPull<4000)return;
+ pullInCorso=true;
+ try{
+  setSyncStatus("Controllo aggiornamenti...","warn");
+  const cloud=await caricaDaCloud();
+  cloudPronto=true; ultimoPull=Date.now();
+  if(datiVuoti(cloud)){
+   setSyncStatus("Google Sheets collegato, archivio vuoto","ok");
+   if(manuale)toast("Nessun dato sul cloud");
+   return;
+  }
+  const primaReg=registro.length;
+  const catU=mergeBy(catalogo,cloud.catalogo,"id");
+  const regU=mergeBy(registro,cloud.registro,"key").sort((a,b)=>(b.key||0)-(a.key||0));
+  const cloudIncompleto=(catU.length!==(cloud.catalogo||[]).length)||(regU.length!==(cloud.registro||[]).length);
+  catalogo=catU.length?catU:CAT0;
+  registro=regU;
+  salvaLocale();
+  renderCatalogo();renderFsel();renderRegistro();renderPicker();
+  const nuovi=regU.length-primaReg;
+  if(cloudIncompleto)await salvaSuCloud();
+  setSyncStatus("Sincronizzato con Google Sheets","ok");
+  if(manuale)toast(nuovi>0?("✓ Aggiornato: "+nuovi+(nuovi===1?" trattamento":" trattamenti")+" in più"):"✓ Già aggiornato");
+ }catch(e){
+  cloudPronto=false;
+  setSyncStatus("Cloud non raggiungibile: uso dati del dispositivo","err");
+  if(manuale)toast("Cloud non raggiungibile");
+ }finally{
+  pullInCorso=false;
+ }
+}
+document.addEventListener("visibilitychange",function(){if(!document.hidden)aggiornaDaCloud(false);});
+window.addEventListener("focus",function(){aggiornaDaCloud(false);});
+
+function salvaBackup(motivo){
+ try{
+  const bk=lsGet("kwh_bk",[]);
+  bk.unshift({ts:Date.now(),motivo:motivo||"",catalogo,registro});
+  localStorage.setItem("kwh_bk",JSON.stringify(bk.slice(0,8)));
+  renderBackup();
+ }catch(e){}
+}
+function renderBackup(){
+ const el=document.getElementById("bk-lista");if(!el)return;
+ const bk=lsGet("kwh_bk",[]);
+ if(!bk.length){el.innerHTML='<div style="font-size:12px;color:#999;padding:4px 0">Nessun backup automatico ancora.</div>';return;}
+ el.innerHTML=bk.map(b=>`<div style="display:flex;align-items:center;justify-content:space-between;gap:8px;padding:8px 0;border-bottom:1px solid #f0f0f0">
+  <div style="min-width:0;flex:1"><div style="font-size:12px;font-weight:600;color:#333">${new Date(b.ts).toLocaleString("it-IT")}</div><div style="font-size:11px;color:#999">${(b.registro||[]).length} tratt. · ${(b.catalogo||[]).length} prod.${b.motivo?" · "+esc(b.motivo):""}</div></div>
+  <button type="button" class="cebtn" style="width:auto;padding:0 12px;height:32px;font-size:12px;font-weight:700" onclick="ripristinaBackup('${b.ts}')">Ripristina</button>
+ </div>`).join("");
+}
+function ripristinaBackup(ts){
+ const bk=lsGet("kwh_bk",[]).find(b=>String(b.ts)===String(ts));
+ if(!bk){toast("Backup non trovato");return;}
+ if(!confirm("Ripristinare il backup del "+new Date(bk.ts).toLocaleString("it-IT")+"?\nI dati attuali verranno sostituiti (ne salvo comunque una copia)."))return;
+ salvaBackup("prima del ripristino");
+ catalogo=Array.isArray(bk.catalogo)&&bk.catalogo.length?bk.catalogo:CAT0;
+ registro=Array.isArray(bk.registro)?bk.registro:[];
+ salvaTutto();renderCatalogo();renderFsel();renderRegistro();renderPicker();
+ toast("✓ Backup ripristinato");
+}
+function esportaBackup(){
+ const blob={app:"kwh",versione:1,ts:Date.now(),catalogo,registro};
+ const txt=JSON.stringify(blob,null,2);
+ const oggi=new Date().toISOString().slice(0,10).replace(/-/g,"");
+ const a=document.createElement("a");
+ a.href="data:application/json;charset=utf-8,"+encodeURIComponent(txt);
+ a.download="kwh_backup_"+oggi+".json";
+ document.body.appendChild(a);a.click();document.body.removeChild(a);
+ toast("✓ Backup esportato");
+}
+function importaBackupFile(input){
+ const file=input.files&&input.files[0];if(!file)return;
+ const reader=new FileReader();
+ reader.onload=function(){
+  try{
+   const d=JSON.parse(reader.result);
+   const cat=Array.isArray(d.catalogo)?d.catalogo:null;
+   const reg=Array.isArray(d.registro)?d.registro:null;
+   if(!cat&&!reg){toast("File non valido");input.value="";return;}
+   if(!confirm("Importare questo backup?\nVerra' unito ai dati attuali, senza perdere nulla.")){input.value="";return;}
+   salvaBackup("prima dell'import");
+   if(cat)catalogo=mergeBy(catalogo,cat,"id");
+   if(reg)registro=mergeBy(registro,reg,"key").sort((a,b)=>(b.key||0)-(a.key||0));
+   salvaTutto();renderCatalogo();renderFsel();renderRegistro();renderPicker();
+   toast("✓ Backup importato e unito");
+  }catch(e){toast("Errore lettura file");}
+  input.value="";
+ };
+ reader.readAsText(file);
+}
+
+document.getElementById("f-data").value=new Date().toISOString().slice(0,10);
+TIPI.forEach(t=>{const o=document.createElement("option");o.value=t;o.textContent=t;document.getElementById("ep-tipo").appendChild(o);});
+renderCatalogo();
+renderRegistro();
+renderBackup();
+avviaCloud();
+
+function cambiaTab(){
+ const tc=document.getElementById("tab-calc"),tp=document.getElementById("tab-prod"),btn=document.querySelector(".hdr-btn");
+ if(tc.classList.contains("on")){tc.classList.remove("on");tp.classList.add("on");btn.textContent="← Calcolo";}
+ else{tp.classList.remove("on");tc.classList.add("on");btn.textContent=" Prodotti";}
+}
+
+function renderFsel(){
+ const et=mainEttariPerDosi();
+ const c=document.getElementById("fsel");c.innerHTML="";
+ sel.forEach(sx=>{
+  const p=catalogo.find(x=>x.id===sx.id);if(!p)return;
+  const d=document.createElement("div");d.className="fbox";
+  d.innerHTML=`<div class="fbox-top">
+  <div style="flex:1;min-width:0"><div class="fnome">${esc(p.nome)}</div><div class="ftipo" style="color:${TC[p.tipo]||"#888"}">${esc(p.tipo)}</div></div>
+  <button type="button" class="fdel" onclick="rimuoviFito('${sx.id}')">×</button></div>
+  <div class="fgrid">
+  <div><div class="fcol-lbl" style="color:#999">${esc(p.unita).toUpperCase()}/HA</div>
+  <div class="fw"><input type="number" inputmode="decimal" class="finp" id="dose-${sx.id}" value="${esc(sx.dose||"")}" oninput="ricalcTotale('${sx.id}')"><span class="funit" style="color:#aaa">${esc(p.unita)}</span></div></div>
+  <div><div class="fcol-lbl" style="color:var(--m)">TOTALE USATO ✏️</div>
+  <div class="fw"><input type="number" inputmode="decimal" class="finp ftot" id="tot-${sx.id}" value="${esc(sx.totale||"")}" placeholder="${et&&sx.dose?(parseFloat(String(sx.dose).replace(",","."))*et).toFixed(2):"—"}" oninput="segnaTotaleManuale('${sx.id}')"><span class="funit" style="color:var(--m);font-weight:700">${esc(p.unita)}</span></div></div>
+  </div>`;
+  c.appendChild(d);
+ });
+ const ab=document.getElementById("addbtn");
+ if(ab)ab.innerHTML=`<span style="font-size:20px">＋</span> ${sel.length?"Aggiungi / rimuovi prodotti":"Aggiungi fitofarmaco"}`;
+}
+function rimuoviFito(id){const p=catalogo.find(x=>x.id===id);if(!confirm("Rimuovere "+(p?p.nome:"questo fitofarmaco")+"?"))return;saveDosi();sel=sel.filter(x=>x.id!==id);renderFsel();}
+function saveDosi(){
+ sel.forEach(sx=>{
+  const d=document.getElementById("dose-"+sx.id),t=document.getElementById("tot-"+sx.id);
+  if(d)sx.dose=d.value;if(t)sx.totale=t.value;
+ });
+}
+function ricalcTotale(id){
+ const sx=sel.find(x=>x.id===id);if(!sx)return;
+ const d=document.getElementById("dose-"+id),t=document.getElementById("tot-"+id);
+ if(d)sx.dose=d.value;
+ if(sx.totManual)return;
+ const et=mainEttariPerDosi();
+ const dose=parseFloat(String(sx.dose||"").replace(",","."))||0;
+ const val=(et&&dose)?(dose*et).toFixed(2):"";
+ sx.totale=val;
+ if(t)t.value=val;
+}
+function segnaTotaleManuale(id){
+ const sx=sel.find(x=>x.id===id);if(!sx)return;
+ const t=document.getElementById("tot-"+id);
+ sx.totale=t?t.value:sx.totale;
+ sx.totManual=!!(t&&t.value!=="");
+}
+function ricalcTuttiTotali(){sel.forEach(sx=>ricalcTotale(sx.id));}
+function apriPicker(){
+ saveDosi();
+ document.getElementById("pk-cerca").value="";
+ renderPicker();
+ document.getElementById("picker").classList.add("on");
+}
+function chiudiPicker(){document.getElementById("picker").classList.remove("on");renderFsel();}
+function renderPicker(){
+ const lista=document.getElementById("pk-lista");
+ if(!lista)return;
+ const cerca=(gv("pk-cerca")||"").toLowerCase();
+ const filtrati=catalogo.filter(p=>p.nome.toLowerCase().includes(cerca)||p.tipo.toLowerCase().includes(cerca));
+ const gruppi=[...new Set(filtrati.map(p=>p.tipo))];
+ const selIds=sel.map(x=>x.id);
+ lista.innerHTML="";
+ gruppi.forEach(g=>{
+  const gl=document.createElement("div");gl.className="glbl";gl.textContent=g;lista.appendChild(gl);
+  filtrati.filter(p=>p.tipo===g).forEach(p=>{
+   const on=selIds.includes(p.id);
+   const row=document.createElement("div");row.className="pkrow"+(on?" on":"");
+   row.innerHTML=`<div class="pkdot" style="background:${TC[p.tipo]||"#888"}"></div>
+   <div style="flex:1"><div style="font-size:13px;font-weight:600;color:#1a1a1a">${esc(p.nome)}</div><div style="font-size:11px;color:#999;margin-top:2px">${p.dose} ${esc(p.unita)}/ha</div></div>
+   <div class="pkck${on?" on":""}">${on?"✓":""}</div>`;
+   row.onclick=()=>{
+    const et=mainEttariPerDosi();
+    if(on)sel=sel.filter(x=>x.id!==p.id);
+    else sel=[...sel,{id:p.id,dose:String(p.dose),totale:et?(p.dose*et).toFixed(2):"",totManual:false}];
+    renderPicker();
+   };
+   lista.appendChild(row);
+  });
+ });
+ document.getElementById("pk-cnt").textContent=sel.length+" selezionati";
+}
+
+function calcola(){
+ const ltHa=numVal("f-ltHa"),interf=numVal("f-interf"),vel=numVal("f-vel");
+ const dos=parseInt(gv("f-dos"))||4,rub=parseInt(gv("f-rub"))||3,ettariManual=numVal("f-ettari");
+ const aria=gv("f-aria"),data=gv("f-data"),nota=gv("f-nota").trim();
+ if(!ltHa||!interf||!vel){alert("Inserisci Quantità, Interfila e Velocità");return;}
+ const botte=areaDaBotti("f",ltHa,ettariManual);
+ const ettari=botte.ettari||0;
+ const totAcqua=botte.totAcqua||(ettari?ltHa*ettari:null);
+ const ltOra=(ltHa*interf*vel)/10,perDos=ltOra/dos;
+ saveDosi();
+ const fito=sel.map(sx=>{const p=catalogo.find(x=>x.id===sx.id);if(!p)return null;return{nome:p.nome,dose:sx.dose,totale:sx.totale,unita:p.unita,tipo:p.tipo};}).filter(Boolean);
+ lastCalc={aria,data,nota,ltHa,interf,vel,dos,rub,ettari:ettari||null,capacitaBotteHl:botte.capacitaBotteHl,numeroBotti:botte.numeroBotti,bottiIntere:botte.bottiIntere,ultimaBotte:botte.ultimaBotte,ltOra,perDos,totAcqua,fito};
+ const isCh=aria==="chiusura";
+ const col=isCh?"linear-gradient(145deg,#d35400,#c0392b)":"linear-gradient(145deg,#1a5c2e,#1e7040)";
+ const rc=document.getElementById("rcard");
+ rc.style.cssText=`display:block;margin:12px 14px 0;border-radius:14px;padding:16px;background:${col};box-shadow:0 4px 16px rgba(0,0,0,.2)`;
+ const celle=[
+  {l:"Litri Totali / Ora",v:fmt(ltOra),u:"lt/h",hi:1},{l:`Litri/Ora per Dosatore (${dos})`,v:fmt(perDos),u:"lt/h",hi:1},
+  {l:"Puntare gli Aghi",v:fmt(perDos),u:""},{l:"Pressione",v:"1.5",u:"bar"},
+  {l:"Rubinetti",v:rub+" / 6",u:""},...(totAcqua?[{l:"Totale Acqua",v:fmt(totAcqua,0),u:"lt"}]:[]),...(botte.numeroBotti?[{l:"Numero botti",v:fmt(botte.numeroBotti,2),u:""},{l:"Botti complete",v:botte.bottiIntere||0,u:""},{l:"Ultima botte",v:fmt(botte.ultimaBotte||0,0),u:"lt"}]:[])
+ ];
+ let h=`<div style="font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:rgba(255,255,255,.55);margin-bottom:12px">${isCh?" Chiusura":" Apertura"} Aria Torre — Risultati</div><div style="display:grid;grid-template-columns:1fr 1fr;gap:7px">`;
+ celle.forEach(c=>{h+=`<div style="background:rgba(255,255,255,${c.hi?".24":".13"});border-radius:10px;padding:11px"><div style="font-size:9px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:rgba(255,255,255,.65);margin-bottom:4px">${c.l}</div><div style="font-size:20px;font-weight:700;color:#fff;line-height:1">${c.v}<span style="font-size:11px;color:rgba(255,255,255,.6);margin-left:3px">${c.u}</span></div></div>`;});
+ rc.innerHTML=h+"</div>"+(nota?`<div style="margin-top:10px;background:rgba(255,255,255,.17);border-radius:10px;padding:9px;color:#fff;font-size:12px;line-height:1.35"><b>Nota:</b> ${esc(nota)}</div>`:"");
+ document.getElementById("brow").style.display="flex";
+}
+
+function salvaReg(){
+ if(!lastCalc)return;
+ registro=[{key:Date.now(),...lastCalc},...registro].slice(0,500);
+ salvaTutto();
+ salvaBackup("nuovo trattamento");
+ renderRegistro();
+ toast("✓ Salvato nel registro");
+ pulisciScheda();
+}
+function pulisciScheda(){
+ ["f-ltHa","f-vel","f-ettari","f-botte-hl","f-num-botti","f-nota"].forEach(id=>{const e=document.getElementById(id);if(e)e.value="";});
+ const interf=document.getElementById("f-interf");if(interf)interf.value="3.41";
+ const dos=document.getElementById("f-dos");if(dos)dos.value="4";
+ const rub=document.getElementById("f-rub");if(rub)rub.value="3";
+ const aria=document.getElementById("f-aria");if(aria)aria.value="apertura";
+ const d=document.getElementById("f-data");if(d)d.value=new Date().toISOString().slice(0,10);
+ const bi=document.getElementById("f-botti-info");if(bi)bi.textContent="";
+ sel=[];renderFsel();renderPicker();
+ lastCalc=null;
+ const rc=document.getElementById("rcard");if(rc){rc.style.display="none";rc.innerHTML="";}
+ const br=document.getElementById("brow");if(br)br.style.display="none";
+}
+function cancellaReg(){if(!confirm("Cancellare tutto il registro?"))return;salvaBackup("prima di cancellare tutto");registro=[];salvaTutto();renderRegistro();}
+function condividiUltimo(){if(registro.length)condividi(registro[0]);}
+function testoVoce(s){
+ const r=[`Trattamento ${dIt(s.data)}`,`${s.aria==="apertura"?"Apertura":"Chiusura"} Aria Torre`,
+ "","REGOLAZIONE",`Quantita: ${s.ltHa} LT/HA`,`Interfila: ${s.interf} m`,
+ `Velocita: ${s.vel} km/h`,`Dosatori: ${s.dos}`,`Rubinetti: ${s.rub}/6`,
+ s.nota?`Nota: ${s.nota}`:null,
+ s.ettari?`Ettari: ${fmt(s.ettari,2)} ha`:null,s.capacitaBotteHl?`Capacita botte: ${s.capacitaBotteHl} HL`:null,s.numeroBotti?`Numero botti: ${fmt(s.numeroBotti,2)}`:null,s.numeroBotti?`Botti complete: ${s.bottiIntere||0}`:null,s.numeroBotti?`Ultima botte: ${fmt(s.ultimaBotte||0,0)} litri`:null,"","RISULTATI",
+ `Litri Totali/Ora: ${fmt(s.ltOra)} lt/h`,`Litri/Ora per dosatore: ${fmt(s.perDos)} lt/h`,`Pressione: 1.5 bar`,
+ s.totAcqua?`Totale acqua: ${fmt(s.totAcqua,0)} litri`:null];
+ if(s.fito?.length){r.push("","FITOFARMACI");s.fito.forEach(x=>r.push(`- ${x.nome}: ${x.dose} ${x.unita}/ha${x.totale?` → ${x.totale} ${x.unita} tot`:""}`));}
+ return r.filter(Boolean).join("\n");
+}
+async function condividi(s){
+ const txt=testoVoce(s);
+ try{
+  if(navigator.share)await navigator.share({title:`Trattamento ${dIt(s.data)}`,text:txt});
+  else{await navigator.clipboard.writeText(txt);toast("✓ Copiato negli appunti");}
+ }catch(e){
+  const a=document.createElement("a");a.href="data:text/plain;charset=utf-8,"+encodeURIComponent(txt);
+  a.download=`trattamento_${s.data||"kwh"}.txt`;document.body.appendChild(a);a.click();document.body.removeChild(a);
+ }
+}
+function aggiornaHomeStat(){
+ const n=registro.length;
+ const numEl=document.getElementById("home-stat-num");
+ const dataEl=document.getElementById("home-stat-data");
+ if(!numEl||!dataEl)return;
+ numEl.textContent=n+(n===1?" trattamento":" trattamenti");
+ if(n){
+  const ultimo=registro[0];
+  dataEl.textContent="Ultimo: "+(dIt(ultimo.data)||"—")+(ultimo.ettari?" · "+fmt(ultimo.ettari,2)+" ha":"");
+ }else{
+  dataEl.textContent="Nessun trattamento salvato";
+ }
+}
+function renderRegistro(){
+ aggiornaHomeStat();
+ const reg=document.getElementById("reg");
+ if(!registro.length){reg.style.display="none";return;}
+ reg.style.display="block";
+ document.getElementById("reg-lbl").textContent=`Registro (${registro.length})`;
+ const voci=document.getElementById("voci");voci.innerHTML="";
+ registro.forEach(v=>{if(editRegKey===v.key)voci.appendChild(buildMod(v));else voci.appendChild(buildVoce(v));});
+}
+function buildVoce(v){
+ const col=v.aria==="apertura"?"#1a5c2e":"#d35400";
+ const d=document.createElement("div");d.className="voce";
+ let h=`<div class="vtop"><div class="vdot" style="background:${col}"></div><div style="flex:1;min-width:0">
+ <div class="vtitle">${v.ltHa} LT/HA · ${v.vel} km/h · ${v.dos} dos. · ${v.rub} rub.</div>
+ <div class="vsub">${v.aria==="apertura"?"Apertura":"Chiusura"} · ${dIt(v.data)}${v.ettari?" · "+fmt(v.ettari,2)+" ha":""}${v.numeroBotti?" · "+fmt(v.numeroBotti,2)+" botti":""}</div>
+ </div><div class="vval" style="color:${col};text-align:right"><div>${fmt(v.ltOra,0)} lt/h</div><div style="font-size:13px;font-weight:700;margin-top:2px">${fmt(v.perDos,0)} lt/h/dos</div></div></div>`;
+ if(v.nota){h+=`<div class="note-box"><b>Nota:</b> ${esc(v.nota)}</div>`;}
+ if(v.fito?.length){
+  h+=`<div class="vfito">`;
+  v.fito.forEach(f=>{
+   h+=`<div class="vfrow"><div style="display:flex;align-items:center;gap:6px;flex:1;min-width:0"><div style="width:7px;height:7px;border-radius:50%;flex-shrink:0;background:${TC[f.tipo]||"#888"}"></div><div style="min-width:0"><div class="vfnome">${esc(f.nome)}</div><div class="vfdose">${esc(f.dose)} ${esc(f.unita)}/ha</div></div></div>${f.totale?`<div class="vftot">↳ ${esc(f.totale)} ${esc(f.unita)}</div>`:`<div style="font-size:11px;color:#ddd;margin-left:8px">—</div>`}</div>`;
+  });
+  h+=`</div>`;
+ }
+ h+=`<div class="vacts"><button type="button" class="vact" style="background:#f0f0f0;color:#333" onclick="apriMod(${v.key})">✏️ Modifica</button><button type="button" class="vact" style="background:#eef4ff;color:#2a5db0" onclick="duplicaVoce(${v.key})">⧉ Duplica</button><button type="button" class="vact" style="background:#f3f0ff;color:#5b3fa0" onclick="stampaVoce(${v.key})">🖨️ Stampa</button><button type="button" class="vact" style="background:#e8f9ec;color:#128c4b" onclick="whatsappVoce(${v.key})">💬 WhatsApp</button><button type="button" class="vact" style="background:var(--l);color:var(--v)" onclick='condividi(registro.find(x=>x.key===${v.key}))'>⬆️ Esporta</button><button type="button" class="vact" style="background:#fff0f0;color:#e74c3c" onclick="elimVoce(${v.key})"> Elimina</button></div>`;
+ d.innerHTML=h;return d;
+}
+function elimVoce(key){if(!confirm("Eliminare questo trattamento?"))return;salvaBackup("prima di eliminare un trattamento");registro=registro.filter(x=>x.key!==key);salvaTutto();renderRegistro();}
+function duplicaVoce(key){
+ const v=registro.find(x=>x.key===key);if(!v)return;
+ const copia={...JSON.parse(JSON.stringify(v)),key:Date.now(),data:new Date().toISOString().slice(0,10)};
+ registro=[copia,...registro].slice(0,500);
+ salvaTutto();renderRegistro();toast("✓ Trattamento duplicato");
+}
+function whatsappVoce(key){
+ const v=registro.find(x=>x.key===key);if(!v)return;
+ window.open("https://wa.me/?text="+encodeURIComponent(testoVoce(v)),"_blank");
+}
+function stampaVoce(key){
+ const v=registro.find(x=>x.key===key);if(!v)return;
+ const col=v.aria==="apertura"?"#1a5c2e":"#d35400";
+ let fito="";
+ if(v.fito?.length){fito='<table style="border-collapse:collapse;width:100%;margin-top:6px;font-size:12pt"><tr><th style="border:1px solid #333;padding:5px;text-align:left">Fitofarmaco</th><th style="border:1px solid #333;padding:5px">Dose/ha</th><th style="border:1px solid #333;padding:5px">Totale</th></tr>';
+  v.fito.forEach(f=>{fito+=`<tr><td style="border:1px solid #333;padding:5px">${esc(f.nome)}</td><td style="border:1px solid #333;padding:5px;text-align:center">${esc(f.dose)} ${esc(f.unita)}</td><td style="border:1px solid #333;padding:5px;text-align:center">${f.totale?esc(f.totale)+" "+esc(f.unita):"—"}</td></tr>`;});
+  fito+="</table>";}
+ const html=`<div style="font-family:Arial,sans-serif;color:#111;max-width:190mm;margin:0 auto;padding:8mm">
+  <h1 style="color:${col};margin:0 0 2mm">Calcolatore KWH — Trattamento</h1>
+  <div style="font-size:13pt;color:#444;margin-bottom:6mm">${v.aria==="apertura"?"Apertura":"Chiusura"} Aria Torre · ${dIt(v.data)}</div>
+  <h2 style="font-size:13pt;border-bottom:2px solid ${col};padding-bottom:2mm">Regolazione</h2>
+  <table style="border-collapse:collapse;width:100%;font-size:12pt;margin-bottom:6mm">
+   <tr><th style="border:1px solid #333;padding:5px;text-align:left">Quantità</th><td style="border:1px solid #333;padding:5px">${v.ltHa} LT/HA</td><th style="border:1px solid #333;padding:5px;text-align:left">Interfila</th><td style="border:1px solid #333;padding:5px">${v.interf} m</td></tr>
+   <tr><th style="border:1px solid #333;padding:5px;text-align:left">Velocità</th><td style="border:1px solid #333;padding:5px">${v.vel} km/h</td><th style="border:1px solid #333;padding:5px;text-align:left">Dosatori</th><td style="border:1px solid #333;padding:5px">${v.dos}</td></tr>
+   <tr><th style="border:1px solid #333;padding:5px;text-align:left">Rubinetti</th><td style="border:1px solid #333;padding:5px">${v.rub}/6</td><th style="border:1px solid #333;padding:5px;text-align:left">Ettari</th><td style="border:1px solid #333;padding:5px">${v.ettari?fmt(v.ettari,2)+" ha":"—"}</td></tr>
+  </table>
+  <h2 style="font-size:13pt;border-bottom:2px solid ${col};padding-bottom:2mm">Risultati</h2>
+  <table style="border-collapse:collapse;width:100%;font-size:12pt;margin-bottom:6mm">
+   <tr><th style="border:1px solid #333;padding:5px;text-align:left">Litri Totali / Ora</th><td style="border:1px solid #333;padding:5px;font-weight:700">${fmt(v.ltOra)} lt/h</td><th style="border:1px solid #333;padding:5px;text-align:left">Litri/Ora per Dosatore</th><td style="border:1px solid #333;padding:5px;font-weight:700">${fmt(v.perDos)} lt/h</td></tr>
+   <tr><th style="border:1px solid #333;padding:5px;text-align:left">Pressione</th><td style="border:1px solid #333;padding:5px">1.5 bar</td><th style="border:1px solid #333;padding:5px;text-align:left">Totale acqua</th><td style="border:1px solid #333;padding:5px">${v.totAcqua?fmt(v.totAcqua,0)+" lt":"—"}</td></tr>
+   ${v.numeroBotti?`<tr><th style="border:1px solid #333;padding:5px;text-align:left">Numero botti</th><td style="border:1px solid #333;padding:5px">${fmt(v.numeroBotti,2)}</td><th style="border:1px solid #333;padding:5px;text-align:left">Ultima botte</th><td style="border:1px solid #333;padding:5px">${fmt(v.ultimaBotte||0,0)} lt</td></tr>`:""}
+  </table>
+  ${fito?`<h2 style="font-size:13pt;border-bottom:2px solid ${col};padding-bottom:2mm">Fitofarmaci</h2>${fito}`:""}
+  ${v.nota?`<div style="margin-top:6mm;font-size:11pt"><b>Nota:</b> ${esc(v.nota)}</div>`:""}
+ </div>`;
+ const w=window.open("","_blank");
+ if(!w){toast("Abilita i popup per stampare");return;}
+ w.document.write(`<!doctype html><html><head><title>Trattamento ${dIt(v.data)}</title></head><body>${html}<script>setTimeout(function(){window.print();},300);<\/script></body></html>`);
+ w.document.close();
+}
+function stampaTutto(){
+ if(!registro.length){toast("Registro vuoto");return;}
+ const oggi=new Date().toLocaleDateString("it-IT");
+ let righe="";
+ registro.forEach(v=>{
+  const ariaTxt=v.aria==="apertura"?"Apertura":"Chiusura";
+  let fitoTxt="—";
+  if(v.fito&&v.fito.length){
+   fitoTxt=v.fito.map(f=>`${esc(f.nome)} ${esc(f.dose)}${esc(f.unita)}/ha${f.totale?` (tot ${esc(f.totale)} ${esc(f.unita)})`:""}`).join("<br>");
+  }
+  righe+=`<tr>
+   <td style="border:1px solid #333;padding:4px;white-space:nowrap">${dIt(v.data)}</td>
+   <td style="border:1px solid #333;padding:4px">${ariaTxt}</td>
+   <td style="border:1px solid #333;padding:4px;text-align:center">${v.ltHa||"—"}</td>
+   <td style="border:1px solid #333;padding:4px;text-align:center">${v.vel||"—"}</td>
+   <td style="border:1px solid #333;padding:4px;text-align:center">${v.dos||"—"}</td>
+   <td style="border:1px solid #333;padding:4px;text-align:center">${v.rub||"—"}</td>
+   <td style="border:1px solid #333;padding:4px;text-align:center">${v.ettari?fmt(v.ettari,2):"—"}</td>
+   <td style="border:1px solid #333;padding:4px;text-align:center">${fmt(v.ltOra,0)}</td>
+   <td style="border:1px solid #333;padding:4px;font-size:10pt">${fitoTxt}</td>
+  </tr>`;
+ });
+ const html=`<div style="font-family:Arial,sans-serif;color:#111;padding:8mm">
+  <h1 style="color:#1a5c2e;margin:0 0 2mm;font-size:18pt">Calcolatore KWH — Registro trattamenti</h1>
+  <div style="font-size:11pt;color:#444;margin-bottom:5mm">${registro.length} trattamenti · stampato il ${oggi}</div>
+  <table style="border-collapse:collapse;width:100%;font-size:11pt">
+   <thead><tr style="background:#e8f5ee">
+    <th style="border:1px solid #333;padding:5px">Data</th>
+    <th style="border:1px solid #333;padding:5px">Aria</th>
+    <th style="border:1px solid #333;padding:5px">LT/HA</th>
+    <th style="border:1px solid #333;padding:5px">km/h</th>
+    <th style="border:1px solid #333;padding:5px">Dos.</th>
+    <th style="border:1px solid #333;padding:5px">Rub.</th>
+    <th style="border:1px solid #333;padding:5px">Ettari</th>
+    <th style="border:1px solid #333;padding:5px">Lt/h</th>
+    <th style="border:1px solid #333;padding:5px">Fitofarmaci</th>
+   </tr></thead>
+   <tbody>${righe}</tbody>
+  </table>
+ </div>`;
+ const w=window.open("","_blank");
+ if(!w){toast("Abilita i popup per stampare");return;}
+ w.document.write(`<!doctype html><html><head><title>Registro KWH</title><style>@media print{@page{size:landscape}}</style></head><body>${html}<script>setTimeout(function(){window.print();},300);<\/script></body></html>`);
+ w.document.close();
+}
+function apriMod(key){
+ editRegKey=key;
+ const v=registro.find(x=>x.key===key);
+ editFito=v&&v.fito?JSON.parse(JSON.stringify(v.fito)):[];
+ renderRegistro();
+ setTimeout(()=>aggiornaBottiAuto('m'),0);
+}
+function buildMod(voce){
+ const fito=editFito||[];
+ let fitoH="";
+ fito.forEach((f,i)=>{
+  const opts=catalogo.map(p=>`<option value="${p.id}"${p.nome===f.nome?" selected":""}>${esc(p.nome)} (${p.dose} ${esc(p.unita)}/ha)</option>`).join("");
+  const currentExists=catalogo.some(p=>p.nome===f.nome);
+  fitoH+=`<div class="fbox" style="margin-bottom:8px"><div style="display:flex;align-items:center;gap:6px;margin-bottom:7px">
+  <div style="width:7px;height:7px;border-radius:50%;flex-shrink:0;background:${TC[f.tipo]||"#888"}"></div><div style="font-size:13px;font-weight:700;flex:1">Fitofarmaco ${i+1}</div><button type="button" class="fdel" onclick="rimuoviModFito(${i})">×</button></div>
+  <div class="campo" style="margin-bottom:8px"><select id="mfprod-${i}" class="sel" onchange="cambiaModFito(${i})">${currentExists?"":`<option value="__old" selected>${esc(f.nome)}</option>`}${opts}</select></div>
+  <div class="fgrid"><div><div class="fcol-lbl" style="color:#999">DOSE / HA</div><div class="fw"><input type="number" inputmode="decimal" class="finp" id="mfd-${i}" value="${esc(f.dose||"")}"><span class="funit" style="color:#aaa" id="mfu-${i}">${esc(f.unita||"")}</span></div></div>
+  <div><div class="fcol-lbl" style="color:var(--m)">TOTALE USATO ✏️</div><div class="fw"><input type="number" inputmode="decimal" class="finp ftot" id="mft-${i}" value="${esc(f.totale||"")}" placeholder="—"><span class="funit" style="color:var(--m);font-weight:700" id="mftu-${i}">${esc(f.unita||"")}</span></div></div></div></div>`;
+ });
+ const addOpts=catalogo.map(p=>`<option value="${p.id}">${esc(p.nome)} (${p.dose} ${esc(p.unita)}/ha)</option>`).join("");
+ const d=document.createElement("div");d.className="voce editing";
+ d.innerHTML=`<div class="mod-tit">✏️ Modifica trattamento</div>
+ <div class="g2"><div><label class="lbl"> Data</label><input type="date" id="m-data" class="inp" value="${voce.data||""}" style="font-family:inherit"></div>
+ <div><label class="lbl">Aria Torre</label><select id="m-aria" class="sel"><option value="apertura"${voce.aria==="apertura"?" selected":""}> Apertura</option><option value="chiusura"${voce.aria==="chiusura"?" selected":""}> Chiusura</option></select></div></div>
+ <div class="g2"><div><label class="lbl"> LT/HA</label><input type="number" inputmode="decimal" id="m-ltHa" class="inp" value="${voce.ltHa||""}" oninput="aggiornaBottiAuto('m')"></div>
+ <div><label class="lbl"> Interfila (m)</label><input type="number" inputmode="decimal" id="m-interf" class="inp" value="${voce.interf||""}"></div>
+ <div><label class="lbl"> Velocità (km/h)</label><input type="number" inputmode="decimal" id="m-vel" class="inp" value="${voce.vel||""}"></div>
+ <div><label class="lbl"> Ettari</label><input type="number" inputmode="decimal" id="m-ettari" class="inp" value="${voce.ettari||""}" oninput="aggiornaBottiAuto('m')"></div></div>
+ <div class="g2"><div><label class="lbl"> Capacità botte (HL)</label><input type="number" inputmode="decimal" id="m-botte-hl" class="inp" value="${voce.capacitaBotteHl||""}" oninput="aggiornaBottiAuto('m')"></div>
+ <div><label class="lbl"> Numero botti automatico</label><input type="text" id="m-num-botti" class="inp" value="${voce.numeroBotti?fmt(voce.numeroBotti,2):""}" readonly style="background:#f0faf4;color:var(--v);font-weight:700"></div>
+ <div><label class="lbl"> Dosatori</label><select id="m-dos" class="sel"><option value="4"${voce.dos===4?" selected":""}>4 Dosatori</option><option value="2"${voce.dos===2?" selected":""}>2 Dosatori</option></select></div>
+ <div><label class="lbl"> Rubinetti</label><select id="m-rub" class="sel">${[1,2,3,4,5,6].map(n=>`<option value="${n}"${voce.rub===n?" selected":""}>${n} Rubinett${n===1?"o":"i"}</option>`).join("")}</select></div></div>
+ <div id="m-botti-info" style="font-size:11px;color:var(--v);font-weight:700;line-height:1.35;margin:-4px 0 12px"></div>
+ <div class="campo" style="margin-bottom:12px"><label class="lbl">Nota</label><textarea id="m-nota" class="inp" rows="2" placeholder="Nota trattamento...">${esc(voce.nota||"")}</textarea></div>
+ <div style="font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#bbb;margin-bottom:9px"> Fitofarmaci modificabili</div>
+ ${fitoH||`<div style="font-size:12px;color:#999;margin-bottom:9px">Nessun fitofarmaco inserito.</div>`}
+ <div style="display:grid;grid-template-columns:1fr auto;gap:8px;margin-bottom:12px"><select id="m-add-prod" class="sel">${addOpts}</select><button type="button" class="addbtn" style="height:46px;margin:0;width:auto;padding:0 14px" onclick="aggiungiModFito()">＋</button></div>
+ <div class="ebtns"><button type="button" class="eann" onclick="annullaMod()">Annulla</button><button type="button" class="esalv" onclick="salvaMod(${voce.key})">✓ Salva modifiche</button></div>`;
+ return d;
+}
+function raccogliModFito(){
+ editFito=(editFito||[]).map((f,i)=>{
+  const prodId=gv(`mfprod-${i}`);
+  let p=catalogo.find(x=>x.id===prodId);
+  if(!p)return {...f,dose:gv(`mfd-${i}`)||f.dose,totale:gv(`mft-${i}`)||f.totale};
+  return {nome:p.nome,tipo:p.tipo,unita:p.unita,dose:gv(`mfd-${i}`)||p.dose,totale:gv(`mft-${i}`)||""};
+ });
+}
+function cambiaModFito(i){
+ const p=catalogo.find(x=>x.id===gv(`mfprod-${i}`));
+ if(!p)return;
+ const d=document.getElementById(`mfd-${i}`),u=document.getElementById(`mfu-${i}`),tu=document.getElementById(`mftu-${i}`);
+ if(d&&!d.value)d.value=p.dose;
+ if(u)u.textContent=p.unita;
+ if(tu)tu.textContent=p.unita;
+}
+function aggiungiModFito(){
+ raccogliModFito();
+ const p=catalogo.find(x=>x.id===gv("m-add-prod"));
+ if(!p)return;
+ const botte=areaDaBotti("m",numVal("m-ltHa"),numVal("m-ettari"));
+ const et=botte.ettari||0;
+ editFito.push({nome:p.nome,tipo:p.tipo,unita:p.unita,dose:String(p.dose),totale:et?(p.dose*et).toFixed(2):""});
+ renderRegistro();
+ setTimeout(()=>aggiornaBottiAuto('m'),0);
+}
+function rimuoviModFito(i){const f=(editFito||[])[i];if(!confirm("Rimuovere "+(f&&f.nome?f.nome:"questo fitofarmaco")+"?"))return;raccogliModFito();editFito.splice(i,1);renderRegistro();}
+function annullaMod(){editRegKey=null;editFito=[];renderRegistro();}
+function salvaMod(key){
+ raccogliModFito();
+ const ltHa=numVal("m-ltHa"),interf=numVal("m-interf");
+ const vel=numVal("m-vel"),ettariManual=numVal("m-ettari");
+ const dos=parseInt(gv("m-dos"))||4,rub=parseInt(gv("m-rub"))||3;
+ const nota=gv("m-nota").trim();
+ const botte=areaDaBotti("m",ltHa,ettariManual);
+ const ettari=botte.ettari||0;
+ const ltOra=ltHa&&interf&&vel?(ltHa*interf*vel)/10:null;
+ registro=registro.map(r=>r.key===key?{...r,
+  data:gv("m-data")||r.data,aria:gv("m-aria")||r.aria,nota,
+  ltHa,interf,vel,dos,rub,ettari:ettari||null,
+  capacitaBotteHl:botte.capacitaBotteHl,numeroBotti:botte.numeroBotti,bottiIntere:botte.bottiIntere,ultimaBotte:botte.ultimaBotte,
+  ltOra:ltOra||r.ltOra,perDos:ltOra?ltOra/dos:r.perDos,
+  totAcqua:botte.totAcqua||(ltHa&&ettari?ltHa*ettari:r.totAcqua),fito:editFito}:r);
+ editRegKey=null;editFito=[];salvaTutto();renderRegistro();toast("✓ Modifiche salvate");
+}
+
+function nuovoProd(){
+ editProdId=uid();
+ document.getElementById("etit").textContent="Nuovo Prodotto";
+ document.getElementById("ep-nome").value="";
+ document.getElementById("ep-dose").value="";
+ document.getElementById("ep-tipo").value="Fungicida";
+ document.getElementById("ep-unita").value="kg";
+ document.getElementById("editbox").classList.add("on");
+}
+function chiudiEdit(){document.getElementById("editbox").classList.remove("on");editProdId=null;}
+function salvaProd(){
+ const nome=gv("ep-nome").trim(),dose=parseFloat(gv("ep-dose"));
+ if(!nome||isNaN(dose)){alert("Inserisci nome e dose");return;}
+ const p={id:editProdId||uid(),nome,tipo:gv("ep-tipo"),unita:gv("ep-unita"),dose};
+ catalogo=catalogo.find(x=>x.id===p.id)?catalogo.map(x=>x.id===p.id?p:x):[...catalogo,p];
+ salvaTutto();chiudiEdit();renderCatalogo();toast("✓ Prodotto salvato");
+}
+function renderCatalogo(){
+ const lista=document.getElementById("cat-lista");lista.innerHTML="";
+ const gc=[...new Set(catalogo.map(p=>p.tipo))];
+ gc.forEach(g=>{
+  const gl=document.createElement("div");gl.className="glbl";gl.style.padding="10px 16px 4px";gl.textContent=g;lista.appendChild(gl);
+  catalogo.filter(p=>p.tipo===g).forEach(p=>{
+   const ci=document.createElement("div");ci.className="cat-item";
+   ci.innerHTML=`<div class="cdot" style="background:${TC[p.tipo]||"#888"}"></div><div style="flex:1;min-width:0"><div class="cnome">${esc(p.nome)}</div><div class="csub">${p.dose} ${esc(p.unita)}/ha</div></div><div class="cacts"><button type="button" class="cebtn" onclick="modProd('${p.id}')">✏️</button><button type="button" class="cdbtn" onclick="elimProd('${p.id}')">×</button></div>`;
+   lista.appendChild(ci);
+  });
+ });
+}
+function modProd(id){
+ const p=catalogo.find(x=>x.id===id);if(!p)return;
+ editProdId=id;
+ document.getElementById("etit").textContent="Modifica Prodotto";
+ document.getElementById("ep-nome").value=p.nome;
+ document.getElementById("ep-dose").value=p.dose;
+ document.getElementById("ep-tipo").value=p.tipo;
+ document.getElementById("ep-unita").value=p.unita;
+ document.getElementById("editbox").classList.add("on");
+ document.getElementById("editbox").scrollIntoView({behavior:"smooth"});
+}
+function elimProd(id){
+ if(!confirm("Eliminare questo prodotto?"))return;
+ catalogo=catalogo.filter(x=>x.id!==id);sel=sel.filter(x=>x.id!==id);
+ salvaTutto();renderCatalogo();renderFsel();
+}
+</script>
+</body>
+</html>
